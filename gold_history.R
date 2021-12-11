@@ -12,5 +12,25 @@ mutate(df, start_end=Year.Close - Year.Open, pos= start_end>0) %>%
 group_by(pos) %>%
 ggplot(aes(x=Year, y=start_end)) +  
 geom_point(aes(x=Year, y=start_end, color=pos)) +
-geom_col(aes(x=Year, y=start_end, color=pos)) 
+geom_col(aes(x=Year, y=start_end, color=pos)) +
 ggtitle("Ce graphe représente la différence entre le prix de l'or à la fin de l'année et le prix de l'or au début de l'année ")  
+
+df %>% 
+  arrange(desc(Year.High)) %>%
+  slice(1:10) %>%
+  ggplot(aes(x=Year, y=Year.High))+
+  geom_point(aes(x=Year, y=Year.High))+
+  geom_line(aes(x=Year, y=Year.High))+
+  ggtitle("Ce graphe représente les dix valuers maxiamles de l'or en dollar")
+
+df$Annual...Change
+df %>%
+  mutate(pos_annual_change=abs(Annual...Change), pos_values=Annual...Change>0) %>%
+  arrange(desc(pos_annual_change)) %>%
+  slice(1:10) %>%
+  ggplot(aes(x=Year, y=pos_annual_change))+
+  geom_point(aes(x=Year, y=Annual...Change))+
+  geom_col(aes(x=Year, y=Annual...Change,  fill=pos_values))
+ggtitle("les plus grandes fluctuations dans l'histoire de l'or")
+
+
