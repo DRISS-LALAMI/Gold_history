@@ -1,10 +1,53 @@
-df=read.csv("Téléchargements/gold history/Gold_Yearly .csv")
+df=read.csv("Téléchargements/gold history/Gold_Daily .csv")
 library(ggplot2)
 library(tidyverse)
-ggplot(data=df ,aes(x=Year, y=Year.High, color="red",fill="red"))+
-geom_point()+ 
-geom_line()+
-ggtitle("Ce graphe montre l'évolution du prix de l'or selon les différentes années")  
+
+install.packages("remotes")
+remotes::install_github("Displayr/flipTime")
+
+library(flipTime)
+
+AsDate(df$Date)
+
+head(df)
+
+df %>%
+  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
+  ggplot(aes(x = Year , y = Price, color=Year))+
+  geom_point(aes(x = Year , y = Price, color=Year)) +
+  ggtitle("Evolution du prix de l'or en fonction des années") 
+
+df %>%
+  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
+  filter(Price>1500)%>%
+  ggplot(aes(x = Year , y = Price, color=Year))+
+  geom_point(aes(x = Year , y = Price, color=Year)) +
+  ggtitle("Evolution du prix de l'or en fonction des années") 
+
+df %>%
+  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
+  filter(Price<300) %>%
+  ggplot(aes(x = Year , y = Price, color=Year))+
+  geom_point(aes(x = Year , y = Price, color=Year)) +
+  ggtitle("Evolution du prix de l'or en fonction des années") 
+
+df %>%
+  arrange(Low) %>%
+  slice(1:10) %>%
+  ggplot(aes(x = Date , y = Low, color=Date))+
+  geom_point(aes(x = Date , y = Low, color=Date)) +
+  geom_line(aes(x = Date , y = Low, color=Date, group=1))+
+  ggtitle("Evolution du prix de l'or en fonction des années") 
+
+df %>%
+  arrange(desc(High)) %>%
+  slice(1:10) %>%
+  ggplot(aes(x = Date , y = High, color=Date))+
+  geom_point(aes(x = Date , y = High, color=Date)) +
+  geom_line(aes(x = Date , y = High, color=Date, group=1))+
+  ggtitle("Evolution du prix de l'or en fonction des années")
+  
+
 summary(df)
 
 df %>%
