@@ -1,8 +1,6 @@
-df=read.csv("Téléchargements/gold history/Gold_Daily .csv")
+df=read.csv("Bureau/Gold_history/Gold_Daily .csv")
 library(ggplot2)
 library(tidyverse)
-
-install.packages("remotes")
 remotes::install_github("Displayr/flipTime")
 
 library(flipTime)
@@ -10,70 +8,103 @@ library(flipTime)
 AsDate(df$Date)
 
 head(df)
+summary(df)
+
+#--------------------------Convertion du prix du once vers le gramme------------------------------------------
+a=lapply(df$Price, `/`, 28.3495)
+b=as.numeric(sprintf("%.1f", a))
 
 df %>%
-  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
-  ggplot(aes(x = Year , y = Price, color=Year))+
-  geom_point(aes(x = Year , y = Price, color=Year)) +
-  ggtitle("Evolution du prix de l'or en fonction des années") 
+  mutate(Year=format(AsDate(df$Date) , format='%Y'),Price_gramme=b ) %>%
+  ggplot(aes(x = Year , y = Price_gramme, color=Year))+
+  geom_point(aes(x = Year , y = Price_gramme, color=Year)) +
+  theme(legend.position = "none")+
+  ggtitle("Evolution du prix de l'or pour un gramme en fonction des années") 
+
+
 
 df %>%
-  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
-  filter(Price>1500)%>%
-  ggplot(aes(x = Year , y = Price, color=Year))+
-  geom_point(aes(x = Year , y = Price, color=Year)) +
-  ggtitle("Evolution du prix de l'or en fonction des années") 
+  mutate(Year=format(AsDate(df$Date) , format='%Y'), Price_gramme=b) %>%
+  filter(Price_gramme>50)%>%
+  ggplot(aes(x = Year , y = Price_gramme, color=Year))+
+  geom_point(aes(x = Year , y = Price_gramme, color=Year)) +
+  theme(legend.position = "none")+
+  ggtitle("les années où l'or a dépassé 50 dollar le gramme") 
 
 df %>%
-  mutate(Year=format(AsDate(df$Date) , format='%Y')) %>%
-  filter(Price<300) %>%
-  ggplot(aes(x = Year , y = Price, color=Year))+
-  geom_point(aes(x = Year , y = Price, color=Year)) +
-  ggtitle("Evolution du prix de l'or en fonction des années") 
+  mutate(Year=format(AsDate(df$Date) , format='%Y'), Price_gramme=b) %>%
+  filter(Price_gramme<15) %>%
+  ggplot(aes(x = Year , y = Price_gramme, color=Year))+
+  geom_point(aes(x = Year , y = Price_gramme, color=Year)) +
+  theme(legend.position = "none")+
+  ggtitle("les années où l'or a chuté à moins de 15 dollar le grame") 
+
+#--------------------------Convertion du prix bas du once vers le gramme------------------------------------------
+c=lapply(df$Low, `/`, 28.3495)
+d_Low=as.numeric(sprintf("%.1f",c ))
+
 
 df %>%
-  arrange(Low) %>%
+  mutate(price_low=d_Low) %>%
+  arrange(price_low) %>%
   slice(1:10) %>%
-  ggplot(aes(x = Date , y = Low, color=Date))+
-  geom_point(aes(x = Date , y = Low, color=Date)) +
-  geom_line(aes(x = Date , y = Low, color=Date, group=1))+
-  ggtitle("Evolution du prix de l'or en fonction des années") 
+  ggplot(aes(x = Date , y = price_low, color="edges"))+
+  geom_point(aes(x = Date , y = price_low, color="edges")) +
+  geom_col(aes( x = Date, y=price_low, fill="overall", width=0.8))+
+  scale_fill_manual(
+    values = c("overall"= "#FF2200"))+
+  scale_color_manual(
+    values = c("edges"= "black"))+
+  geom_text(aes(label = price_low), vjust = -0.5)+
+  ggtitle("les dix valeurs les plus basses de l'or pour le gramme")
+
+#--------------------------Convertion du prix bas du once vers le gramme------------------------------------------
+e=lapply(df$High, `/`, 28.3495)
+f=as.numeric(sprintf("%.1f",e ))
 
 df %>%
-  arrange(desc(High)) %>%
+  mutate(price_high=f) %>%
+  arrange(desc(price_high)) %>%
   slice(1:10) %>%
-  ggplot(aes(x = Date , y = High, color=Date))+
-  geom_point(aes(x = Date , y = High, color=Date)) +
-  geom_line(aes(x = Date , y = High, color=Date, group=1))+
-  ggtitle("Evolution du prix de l'or en fonction des années")
+  ggplot(aes(x = Date , y = price_high, color= "edges"))+
+  geom_col(aes( x = Date, y=price_high, fill="overall", width=0.8))+
+  scale_fill_manual(
+  values = c("overall"= "#7FFF00"))+
+  scale_color_manual(
+    values = c("edges"= "black"))+
+  geom_text(aes(label = price_high), vjust = -0.5)+
+  ggtitle("Les dix valeurs les plus hautes de l'or pour le gramme")
   
 
 summary(df)
+legend_title="legend_gold"
+df %>%
+  mutate(positive= Change..>0 , abs_value= abs(Change..)) %>%
+  arrange(desc(abs_value)) %>%
+  slice(1:10) %>%
+  group_by(positive) %>%
+  ggplot(aes(x = Date , y = Change.. ,fill=positive))+
+  geom_col(aes(x = Date , y = Change.., fill=positive ))+
+  geom_text(aes(label = Change..), vjust = -0.5)+
+  scale_fill_manual(legend_title,values=c("#FF2200","#7CFF00"),
+                    labels = paste(c("drop of price", "raise of price")))+
+  ggtitle("Les dix plus grand changement dans l'histoire de l'or")
 
-# df %>%
-# mutate(df, start_end=Year.Close - Year.Open, pos= start_end>0) %>%
-# group_by(pos) %>%
-# ggplot(aes(x=Year, y=start_end)) +  
-# geom_point(aes(x=Year, y=start_end, color=pos)) +
-# geom_col(aes(x=Year, y=start_end, color=pos)) +
-# ggtitle("Ce graphe représente la différence entre le prix de l'or à la fin de l'année et le prix de l'or au début de l'année ")  
-# 
-# df %>% 
-#   arrange(desc(Year.High)) %>%
-#   slice(1:10) %>%
-#   ggplot(aes(x=Year, y=Year.High))+
-#   geom_point(aes(x=Year, y=Year.High))+
-#   geom_line(aes(x=Year, y=Year.High))+
-#   ggtitle("Ce graphe représente les dix valuers maxiamles de l'or en dollar")
-# 
-# df$Annual...Change
-# df %>%
-#   mutate(pos_annual_change=abs(Annual...Change), pos_values=Annual...Change>0) %>%
-#   arrange(desc(pos_annual_change)) %>%
-#   slice(1:10) %>%
-#   ggplot(aes(x=Year, y=pos_annual_change))+
-#   geom_point(aes(x=Year, y=Annual...Change))+
-#   geom_col(aes(x=Year, y=Annual...Change,  fill=pos_values))
-# ggtitle("les plus grandes fluctuations dans l'histoire de l'or")
+df$Vol
+new_vol<- as.numeric(gsub("K","",as.character(df$Vol)))
+volume_title="volume de transactions"
+df %>%
+  mutate(nv_vol=new_vol) %>%
+  arrange(desc(nv_vol)) %>%
+  slice(1:10) %>%
+  ggplot(aes(x = Date , y = nv_vol))+
+  geom_col(aes(x = Date , y = nv_vol,fill="overall" ))+
+  geom_text(aes(label = nv_vol), vjust = -0.5)+
+  scale_fill_manual(volume_title,values=c("overall" ="#1a5276"),
+                    labels = paste(c("volume")))+
+  ggtitle("Les dix jours qui ont connus les plus grand volume de transaction")
 
 
+  
+
+  
