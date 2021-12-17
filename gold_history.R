@@ -27,7 +27,7 @@ df %>%
   #+ggtitle("Evolution du prix de l'or pour un gramme en fonction des années") 
 
 
-#------------------- Plot 1 : Evolution of the Gold's Price ----------------------------------------------------
+#------------------- Plot 2 : Price per grame > 50----------------------------------------------------
 
 df %>%
   mutate(Year=format(AsDate(df$Date) , format='%Y'), Price_gramme=b) %>%
@@ -37,7 +37,7 @@ df %>%
   theme(legend.position = "none")
   #+ggtitle("les années où l'or a dépassé 50 dollar le gramme") 
 
-#----------------------- Plot 2 : les années où l'or a chuté à moins de 15 dollar le grame -----------------
+#----------------------- Plot 3 : les années où l'or a chuté à moins de 15 dollar le grame -----------------
 
 df %>%
   mutate(Year=format(AsDate(df$Date) , format='%Y'), Price_gramme=b) %>%
@@ -52,7 +52,7 @@ c=lapply(df$Low, `/`, 28.3495)
 d_Low=as.numeric(sprintf("%.1f",c ))
 
 
-#-------------------------- Plot 3 : les dix valeurs les plus basses de l'or pour le gramme ---------------------------
+#-------------------------- Plot 4 : les dix valeurs les plus basses de l'or pour le gramme ---------------------------
 
 df %>%
   mutate(price_low=d_Low) %>%
@@ -73,7 +73,7 @@ df %>%
 e=lapply(df$High, `/`, 28.3495)
 f=as.numeric(sprintf("%.1f",e ))
 
-#--------------------- Plot 4 : Les dix valeurs les plus hautes de l'or pour le gramme-------------
+#--------------------- Plot 5 : Les dix valeurs les plus hautes de l'or pour le gramme-------------
 
 df %>%
   mutate(price_high=f) %>%
@@ -91,7 +91,7 @@ df %>%
   
 
 
-#------------- Plot 5 : Les dix plus grand changement dans l'histoire de l'or ------------
+#------------- Plot 6 : Les dix plus grand changement dans l'histoire de l'or ------------
 
 legend_title="legend_gold"
 
@@ -111,7 +111,7 @@ df %>%
 
 
 
-#----------------- Plot 6 : Les dix jours qui ont connus les plus grand volume de transaction --------------²
+#----------------- Plot 7 : Les dix jours qui ont connus les plus grand volume de transaction --------------²
 
 df$Vol
 new_vol<- as.numeric(gsub("K","",as.character(df$Vol)))
